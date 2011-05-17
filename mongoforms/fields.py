@@ -1,3 +1,4 @@
+import copy
 from django import forms
 from django.utils.encoding import smart_unicode
 from pymongo.errors import InvalidId
@@ -33,16 +34,17 @@ class ReferenceField(forms.ChoiceField):
         try:
             oid = ObjectId(value)
             oid = super(ReferenceField, self).clean(oid)
-            obj = self.queryset.get(id=oid)
+            queryset = copy.copy(self.queryset)
+            obj = queryset.get(id=oid)
         except (TypeError, InvalidId, self.queryset._document.DoesNotExist):
             raise forms.ValidationError(self.error_messages['invalid_choice'] % {'value':value})
         return obj
 
 class MongoFormFieldGenerator(object):
     """This class generates Django form-fields for mongoengine-fields."""
-    
+
     def generate(self, field_name, field):
-        """Tries to lookup a matching formfield generator (lowercase 
+        """Tries to lookup a matching formfield generator (lowercase
         field-classname) and raises a NotImplementedError of no generator
         can be found.
         """
