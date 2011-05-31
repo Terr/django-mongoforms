@@ -24,7 +24,7 @@ class MongoFormMetaClass(type):
 
         # add the fields as "our" base fields
         attrs['base_fields'] = SortedDict(fields)
-        
+
         # Meta class available?
         if 'Meta' in attrs and hasattr(attrs['Meta'], 'document') and \
            issubclass(attrs['Meta'].document, BaseDocument):
@@ -32,11 +32,15 @@ class MongoFormMetaClass(type):
 
             formfield_generator = getattr(attrs['Meta'], 'formfield_generator', \
                 MongoFormFieldGenerator)()
+            dict_fields = dict(fields)
 
             # walk through the document fields
             for field_name, field in iter_valid_fields(attrs['Meta']):
                 # add field and override clean method to respect mongoengine-validator
-                doc_fields[field_name] = formfield_generator.generate(field_name, field)
+                if field_name in dict_fields:
+                    doc_fields[field_name] = dict_fields[field_name]
+                else:
+                    doc_fields[field_name] = formfield_generator.generate(field_name, field)
                 doc_fields[field_name].clean = mongoengine_validate_wrapper(
                     doc_fields[field_name].clean, field._validate)
 
