@@ -1,3 +1,4 @@
+from django import forms
 from mongoengine.base import ValidationError
 
 def mongoengine_validate_wrapper(old_clean, new_clean):
