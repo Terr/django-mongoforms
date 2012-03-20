@@ -3,12 +3,12 @@ from mongoengine.base import ValidationError
 
 def mongoengine_validate_wrapper(old_clean, new_clean):
     """
-    A wrapper function to validate formdata against mongoengine-field 
+    A wrapper function to validate formdata against mongoengine-field
     validator and raise a proper django.forms ValidationError if there
     are any problems.
     """
 
-    def inner_validate(value):
+    def inner_validate(value, *args):
         value = old_clean(value)
         try:
             new_clean(value)
